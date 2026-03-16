@@ -8,110 +8,79 @@ const instrucciones=[
 ]
 
 let caraActual=0
-let cubo=[]
 
 const video=document.getElementById("video")
+const canvas=document.getElementById("overlay")
+const ctx=canvas.getContext("2d")
+
+document.getElementById("instruccion").innerText=instrucciones[caraActual]
 
 navigator.mediaDevices.getUserMedia({video:true})
 .then(stream=>{
 video.srcObject=stream
+requestAnimationFrame(detectar)
 })
 
-document.getElementById("instruccion").innerText=instrucciones[caraActual]
+function detectar(){
 
-function crearCara(){
+ctx.drawImage(video,0,0,640,480)
 
-let cont=document.getElementById("cara")
-cont.innerHTML=""
+let size=60
+let startX=260
+let startY=150
 
-for(let i=0;i<9;i++){
+for(let y=0;y<3;y++){
+for(let x=0;x<3;x++){
 
-let c=document.createElement("div")
-c.className="cuadro"
-c.style.background="gray"
+let px=startX+x*size
+let py=startY+y*size
 
-c.onclick=()=>cambiarColor(c)
+ctx.strokeStyle="white"
+ctx.strokeRect(px,py,size,size)
 
-cont.appendChild(c)
+let data=ctx.getImageData(px+20,py+20,20,20).data
+
+let r=0,g=0,b=0
+
+for(let i=0;i<data.length;i+=4){
+
+r+=data[i]
+g+=data[i+1]
+b+=data[i+2]
+
+}
+
+r/=data.length/4
+g/=data.length/4
+b/=data.length/4
+
+let color=detectarColor(r,g,b)
+
+ctx.fillStyle=color
+ctx.fillRect(px+20,py+20,20,20)
 
 }
 
 }
 
-const colores=[
-"white",
-"red",
-"orange",
-"yellow",
-"green",
-"blue"
-]
-
-function cambiarColor(c){
-
-let actual=colores.indexOf(c.style.background)
-
-actual=(actual+1)%6
-
-c.style.background=colores[actual]
+requestAnimationFrame(detectar)
 
 }
 
-crearCara()
+function detectarColor(r,g,b){
 
-function guardarCara(){
+if(r>200 && g>200 && b>200) return "white"
 
-let cuadros=document.querySelectorAll(".cuadro")
+if(r>200 && g<80 && b<80) return "red"
 
-cuadros.forEach(c=>{
+if(r>200 && g>120 && b<80) return "orange"
 
-switch(c.style.background){
+if(r>200 && g>200 && b<80) return "yellow"
 
-case "white":cubo.push("U");break
-case "red":cubo.push("R");break
-case "green":cubo.push("F");break
-case "yellow":cubo.push("D");break
-case "orange":cubo.push("L");break
-case "blue":cubo.push("B");break
+if(g>150 && r<100) return "green"
 
-}
+if(b>150 && r<100) return "blue"
 
-})
-
-caraActual++
-
-if(caraActual<6){
-
-document.getElementById("instruccion").innerText=instrucciones[caraActual]
-crearCara()
-
-}
-else{
-
-resolver()
-
-}
-
-}
-
-async function resolver(){
-
-let res=await fetch("/solve",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({cube:cubo.join("")})
-})
-
-let data=await res.json()
-
-let scramble=data.solution.split(" ").reverse().join(" ")
-
-let url=
-"https://alpha.twizzle.net/edit/?puzzle=3x3x3&alg="+
-encodeURIComponent(scramble)
-
-window.location=url
+return "gray"
 
 }
