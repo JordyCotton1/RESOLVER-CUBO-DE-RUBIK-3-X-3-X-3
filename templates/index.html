@@ -1,58 +1,29 @@
 ```html
 <!DOCTYPE html>
 <html>
+
 <head>
-
-<title>Rubik Scanner</title>
-
-<style>
-
-body{
-background:#111;
-color:white;
-text-align:center;
-font-family:Arial;
-}
-
-video{
-border:3px solid white;
-}
-
-canvas{
-position:absolute;
-}
-
-#container{
-position:relative;
-display:inline-block;
-}
-
-button{
-padding:15px;
-font-size:20px;
-margin-top:20px;
-}
-
-</style>
-
+<link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-<h1>Escaner Cubo Rubik</h1>
+<h2>Escáner de Cubo Rubik</h2>
+
+<p id="instruccion"></p>
 
 <div id="container">
-<video id="video" width="640" height="480" autoplay></video>
-<canvas id="canvas" width="640" height="480"></canvas>
+<video id="video" autoplay></video>
+<canvas id="overlay"></canvas>
 </div>
 
-<br>
+<h3>Cara detectada</h3>
 
-<button onclick="solve()">Resolver Cubo</button>
+<div id="cara"></div>
 
-<h2 id="result"></h2>
+<button onclick="guardarCara()">SIGUIENTE</button>
 
-<script src="/static/script.js"></script>
+<script src="/static/scanner.js"></script>
 
 </body>
 </html>
